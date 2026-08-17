@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ashlyn's Bookshelf</title>
+  <title>Bookshelf</title>
   <meta name="description" content="An interactive bookshelf — hover over a spine to preview its cover." />
 
   <!-- Stylesheet -->
@@ -13,22 +13,11 @@
 
 <body>
 
-  <!-- ─── Header ──────────────────────────────────────────────────── -->
-  <header class="page-header">
-    <h1>Ashlyn's Bookshelf</h1>
-    <p>Hover over a spine to preview the cover</p>
-  </header>
-
   <!-- ─── Bookshelf ───────────────────────────────────────────────── -->
   <main class="bookshelf-wrapper">
     <div id="bookshelf-container" class="bookshelf-container">
-      <img
-        id="bookshelf-image"
-        class="bookshelf-image"
-        src="./assets/bookshelf.jpeg"
-        alt="Bookshelf photograph"
-        draggable="false"
-      />
+      <img id="bookshelf-image" class="bookshelf-image" src="./assets/bookshelf.png" alt="Bookshelf photograph"
+        draggable="false" />
       <!-- Hotspot overlays are injected here by app.js -->
     </div>
   </main>
@@ -36,13 +25,7 @@
   <!-- ─── Floating Cover Preview (hidden by default) ──────────────── -->
   <div id="cover-preview" class="cover-preview">
     <img src="" alt="" />
-    <span class="title-label"></span>
   </div>
-
-  <!-- ─── Footer ──────────────────────────────────────────────────── -->
-  <footer class="page-footer">
-    <p>&copy; 2026 Ashlyn's Bookshelf</p>
-  </footer>
 
   <!-- ─── Scripts (ES modules) ────────────────────────────────────── -->
   <script type="module" src="./src/app.js"></script>

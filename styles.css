@@ -18,10 +18,11 @@ html {
   font: 112.5%/1.65 'Arvo', serif;
   -webkit-text-size-adjust: 100%;
   overflow-y: scroll;
+  background-color: #f4eeef;
 }
 
 body {
-  background-color: #ffffff;
+  background-color: #f4eeef;
   color: hsla(0, 0%, 0%, 0.8);
   font-family: 'Arvo', serif;
   font-weight: 400;
@@ -34,46 +35,25 @@ body {
   justify-content: center;
 }
 
-/* ─── Page Header ───────────────────────────────────────────────────── */
-.page-header {
-  text-align: center;
-  padding: 2.5rem 1rem 0.5rem;
-  user-select: none;
-}
-
-.page-header h1 {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  font-size: 1.8rem;
-  letter-spacing: 0.02em;
-  color: hsla(0, 0%, 0%, 0.85);
-  margin-bottom: 0.25rem;
-}
-
-.page-header p {
-  font-size: 0.85rem;
-  color: hsla(0, 0%, 0%, 0.45);
-  margin-bottom: 0;
-}
-
 /* ─── Bookshelf Container ──────────────────────────────────────────── */
 .bookshelf-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem 1rem 2.5rem;
+  padding: 2.5rem 1rem;
   width: 100%;
 }
 
 .bookshelf-container {
   position: relative;
   display: inline-block;
-  line-height: 0;           /* Remove baseline gap under image */
+  line-height: 0;
+  /* Remove baseline gap under image */
 }
 
 .bookshelf-image {
-  max-width: 90vw;
-  max-height: 85vh;
+  max-width: 72vw;
+  max-height: 72vh;
   width: auto;
   height: auto;
   object-fit: contain;
@@ -90,6 +70,8 @@ body {
   border-radius: 3px;
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   z-index: 10;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .book-hotspot:hover,
@@ -122,29 +104,12 @@ body {
 
 .cover-preview img {
   display: block;
-  width: 160px;
+  max-width: 45vw;
+  max-height: 80vh;
+  width: auto;
   height: auto;
-  border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.14),
-    0 2px 6px rgba(0, 0, 0, 0.08);
-  background: #fff;
-}
-
-/* ─── Book Title Tooltip ───────────────────────────────────────────── */
-.cover-preview .title-label {
-  display: block;
-  text-align: center;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: hsla(0, 0%, 0%, 0.7);
-  margin-top: 6px;
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  background: transparent;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.22));
 }
 
 /* ─── Calibration Mode Overlay ─────────────────────────────────────── */
@@ -194,18 +159,7 @@ body {
   font-family: inherit;
 }
 
-/* ─── Footer ───────────────────────────────────────────────────────── */
-.page-footer {
-  text-align: center;
-  padding: 0 1rem 1.5rem;
-  user-select: none;
-}
 
-.page-footer p {
-  font-size: 0.72rem;
-  color: hsla(0, 0%, 0%, 0.3);
-  margin: 0;
-}
 
 /* ─── Responsive Tweaks ────────────────────────────────────────────── */
 @media (max-width: 600px) {

@@ -12,10 +12,9 @@ const CALIBRATION_MODE = false;
 
 // ─── DOM References ───────────────────────────────────────────────────
 const container = document.getElementById('bookshelf-container');
-const image     = document.getElementById('bookshelf-image');
-const preview   = document.getElementById('cover-preview');
-const previewImg   = preview.querySelector('img');
-const previewTitle = preview.querySelector('.title-label');
+const image = document.getElementById('bookshelf-image');
+const preview = document.getElementById('cover-preview');
+const previewImg = preview.querySelector('img');
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 
@@ -31,7 +30,7 @@ function getPolygon(book) {
   // Explicit pixel-coordinate polygon
   if (book.points) {
     return book.points.map(([x, y]) => [
-      (x / ORIGINAL_IMAGE_DIMENSIONS.width)  * 100,
+      (x / ORIGINAL_IMAGE_DIMENSIONS.width) * 100,
       (y / ORIGINAL_IMAGE_DIMENSIONS.height) * 100,
     ]);
   }
@@ -47,19 +46,19 @@ function getPolygon(book) {
   else if (book.pixels) {
     const p = book.pixels;
     box = {
-      x:      (p.x      / ORIGINAL_IMAGE_DIMENSIONS.width)  * 100,
-      y:      (p.y      / ORIGINAL_IMAGE_DIMENSIONS.height) * 100,
-      width:  (p.width  / ORIGINAL_IMAGE_DIMENSIONS.width)  * 100,
+      x: (p.x / ORIGINAL_IMAGE_DIMENSIONS.width) * 100,
+      y: (p.y / ORIGINAL_IMAGE_DIMENSIONS.height) * 100,
+      width: (p.width / ORIGINAL_IMAGE_DIMENSIONS.width) * 100,
       height: (p.height / ORIGINAL_IMAGE_DIMENSIONS.height) * 100,
     };
   }
 
   if (box) {
     return [
-      [box.x,             box.y],
+      [box.x, box.y],
       [box.x + box.width, box.y],
       [box.x + box.width, box.y + box.height],
-      [box.x,             box.y + box.height],
+      [box.x, box.y + box.height],
     ];
   }
 
@@ -82,19 +81,18 @@ function renderHotspots() {
     const minY = Math.min(...ys);
     const maxX = Math.max(...xs);
     const maxY = Math.max(...ys);
-    const bw   = maxX - minX;
-    const bh   = maxY - minY;
+    const bw = maxX - minX;
+    const bh = maxY - minY;
 
     const el = document.createElement('div');
     el.className = 'book-hotspot';
     el.id = `hotspot-${book.id}`;
     el.setAttribute('aria-label', book.title);
-    el.title = book.title;
 
     // Position & size to the bounding box
-    el.style.left   = `${minX}%`;
-    el.style.top    = `${minY}%`;
-    el.style.width  = `${bw}%`;
+    el.style.left = `${minX}%`;
+    el.style.top = `${minY}%`;
+    el.style.width = `${bw}%`;
     el.style.height = `${bh}%`;
 
     // Clip to the actual polygon shape
@@ -105,19 +103,32 @@ function renderHotspots() {
     }).join(', ');
     el.style.clipPath = `polygon(${clipPoints})`;
 
-    // ── Cover preview on hover ────────────────────────────────────
-    el.addEventListener('mouseenter', () => {
+    // ── Cover preview on hover & touch ─────────────────────────────
+    const showPreview = () => {
       if (book.coverUrl) {
         previewImg.src = book.coverUrl;
         previewImg.alt = book.title;
-        previewTitle.textContent = book.title;
         positionPreviewBySpine(el);
         preview.classList.add('visible');
       }
-    });
+    };
 
-    el.addEventListener('mouseleave', () => {
+    const hidePreview = () => {
       preview.classList.remove('visible');
+    };
+
+    el.addEventListener('mouseenter', showPreview);
+    el.addEventListener('mouseleave', hidePreview);
+
+    // Mobile tap toggle
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isCurrent = preview.classList.contains('visible') && previewImg.src.includes(book.coverUrl);
+      if (isCurrent) {
+        hidePreview();
+      } else {
+        showPreview();
+      }
     });
 
     container.appendChild(el);
@@ -127,28 +138,57 @@ function renderHotspots() {
 // ─── Cover Preview Positioning (anchored next to the spine) ───────────
 
 function positionPreviewBySpine(hotspotEl) {
-  const pad = 12;
+  const pad = 0; // zero gap so cover preview touches flush against the spine edge
   const spineRect = hotspotEl.getBoundingClientRect();
-  const pw = preview.offsetWidth  || 176;
-  const ph = preview.offsetHeight || 280;
+  const containerRect = container.getBoundingClientRect();
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  // Vertically center on the spine
-  let y = spineRect.top + spineRect.height / 2 - ph / 2;
+  const isVertical = spineRect.height >= spineRect.width;
+  const spineLength = isVertical ? spineRect.height : spineRect.width;
 
-  // Horizontally: prefer right side of spine, flip to left if no room
-  let x = spineRect.right + pad;
-  if (x + pw > vw) {
+  // Scale cover height proportionally to spine length (minimum 120px on mobile for readability)
+  const minH = vw < 600 ? 120 : 80;
+  const targetHeight = Math.min(Math.max(spineLength * 1.15, minH), vh - 20);
+  previewImg.style.height = `${Math.round(targetHeight)}px`;
+  previewImg.style.width = 'auto';
+
+  const pw = preview.offsetWidth || 160;
+  const ph = preview.offsetHeight || targetHeight;
+
+  // Determine visual center line of the bookshelf photo (centered at Very Good, Jeeves: ~60% of image width)
+  const imgRect = image.getBoundingClientRect();
+  const bookshelfCenterX = imgRect.left + imgRect.width * 0.60;
+  const spineCenterX = spineRect.left + spineRect.width / 2;
+
+  let x, y;
+
+  // Horizontal position: project TOWARDS the visual center of the bookshelf (at Very Good, Jeeves)
+  if (spineCenterX < bookshelfCenterX) {
+    // Spine is to the LEFT of Very Good, Jeeves -> pop up to its RIGHT side (towards center)
+    x = spineRect.right + pad;
+  } else {
+    // Spine is to the RIGHT of Very Good, Jeeves -> pop up to its LEFT side (towards center)
     x = spineRect.left - pad - pw;
   }
 
-  // Keep inside viewport vertically
-  if (y < pad) y = pad;
-  if (y + ph > vh) y = vh - ph - pad;
+  // Vertical position:
+  if (isVertical) {
+    // Standing books: align top of cover preview directly with top of spine
+    y = spineRect.top;
+  } else {
+    // Horizontal lying books (Range): center vertically alongside left/right end of spine
+    y = spineRect.top + spineRect.height / 2 - ph / 2;
+  }
 
-  preview.style.left = `${x}px`;
-  preview.style.top  = `${y}px`;
+  // Keep inside viewport bounds vertically and horizontally
+  if (y < 4) y = 4;
+  if (y + ph > vh - 4) y = vh - ph - 4;
+  if (x < 4) x = 4;
+  if (x + pw > vw - 4) x = vw - pw - 4;
+
+  preview.style.left = `${Math.round(x)}px`;
+  preview.style.top = `${Math.round(y)}px`;
 }
 
 // ─── Initialisation ───────────────────────────────────────────────────
@@ -160,7 +200,24 @@ function init() {
     image.addEventListener('load', renderHotspots, { once: true });
   }
 
-  window.addEventListener('resize', renderHotspots);
+  const handleResize = () => {
+    preview.classList.remove('visible');
+    renderHotspots();
+  };
+
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('orientationchange', handleResize);
+
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(() => renderHotspots()).observe(image);
+  }
+
+  // Close cover preview when tapping outside on mobile/tablet/desktop
+  document.addEventListener('pointerdown', (e) => {
+    if (!e.target.closest('.book-hotspot')) {
+      preview.classList.remove('visible');
+    }
+  });
 
   if (CALIBRATION_MODE) {
     initCalibration();
@@ -184,7 +241,7 @@ function initCalibration() {
     const dot = document.createElement('div');
     dot.className = 'calibration-dot';
     dot.style.left = `${x}px`;
-    dot.style.top  = `${y}px`;
+    dot.style.top = `${y}px`;
     dot.textContent = corners.length;
     container.appendChild(dot);
     dots.push(dot);
@@ -256,7 +313,7 @@ function initCalibration() {
   function finalize() {
     const imgW = image.offsetWidth;
     const imgH = image.offsetHeight;
-    const scaleX = ORIGINAL_IMAGE_DIMENSIONS.width  / imgW;
+    const scaleX = ORIGINAL_IMAGE_DIMENSIONS.width / imgW;
     const scaleY = ORIGINAL_IMAGE_DIMENSIONS.height / imgH;
 
     const pixelPoints = corners.map(c => [
