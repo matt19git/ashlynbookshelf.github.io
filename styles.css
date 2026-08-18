@@ -40,7 +40,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2.5rem 1rem;
+  padding: 1.75rem 1rem;
   width: 100%;
 }
 
@@ -176,3 +176,34 @@ body {
     font-size: 0.62rem;
   }
 }
+
+
+/* ─── Spotify Embed — match bookshelf width & center ───────────── */
+.spotify-embed {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 0.4rem 0 0.2rem 0; /* slightly less gap above and below */
+}
+
+.spotify-embed__frame {
+  /* Match the bookshelf image maximum width (72vw) and center the frame */
+  width: 100%;
+  max-width: 72vw;
+  aspect-ratio: 16 / 3.6; /* slightly taller than default */
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.spotify-embed__frame iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+}
+
+/* login banner removed — embed-only layout */
+
+
+/* Record player removed — styles cleaned up */

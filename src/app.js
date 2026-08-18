@@ -135,6 +135,34 @@ function renderHotspots() {
   });
 }
 
+// ─── Visual centering helper: center the bookshelf so a visual focal point
+// (e.g. "Very Good, Jeeves") at a given ratio of the image width appears
+// at the viewport center. This shifts the entire `container` so hotspots
+// and the image move together.
+function centerBookshelf(ratio = 0.60) {
+  if (!container || !image) return;
+  const imgRect = image.getBoundingClientRect();
+  const imgW = imgRect.width || image.offsetWidth;
+  // shift relative to the currently centered state: (0.5 - ratio) * imgWidth
+  const shift = (0.5 - ratio) * imgW;
+  container.style.transform = `translateX(${shift}px)`;
+}
+
+// ─── Sync Spotify embed width to the bookshelf image so they visually match
+function syncEmbedWidth() {
+  const frame = document.querySelector('.spotify-embed__frame');
+  if (!frame || !image) return;
+  const imgRect = image.getBoundingClientRect();
+  const imgW = Math.round(imgRect.width || image.offsetWidth);
+  if (imgW > 0) {
+    // make the embed slightly wider than the bookshelf (about 105%)
+    const targetW = Math.round(imgW * 1.05);
+    frame.style.width = targetW + 'px';
+    // set a slightly taller aspect ratio for more vertical space
+    frame.style.setProperty('aspect-ratio', '16 / 3.6');
+  }
+}
+
 // ─── Cover Preview Positioning (anchored next to the spine) ───────────
 
 function positionPreviewBySpine(hotspotEl) {
@@ -196,20 +224,32 @@ function positionPreviewBySpine(hotspotEl) {
 function init() {
   if (image.complete) {
     renderHotspots();
+    centerBookshelf();
+    syncEmbedWidth();
   } else {
-    image.addEventListener('load', renderHotspots, { once: true });
+    image.addEventListener('load', () => {
+      renderHotspots();
+      centerBookshelf();
+      syncEmbedWidth();
+    }, { once: true });
   }
 
   const handleResize = () => {
     preview.classList.remove('visible');
     renderHotspots();
+    centerBookshelf();
+    syncEmbedWidth();
   };
 
   window.addEventListener('resize', handleResize);
   window.addEventListener('orientationchange', handleResize);
 
   if ('ResizeObserver' in window) {
-    new ResizeObserver(() => renderHotspots()).observe(image);
+    new ResizeObserver(() => {
+      renderHotspots();
+      centerBookshelf();
+      syncEmbedWidth();
+    }).observe(image);
   }
 
   // Close cover preview when tapping outside on mobile/tablet/desktop
