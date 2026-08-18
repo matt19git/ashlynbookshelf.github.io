@@ -207,3 +207,23 @@ body {
 
 
 /* Record player removed — styles cleaned up */
+
+/* ─── Desktop fit tweak: keep embed + bookshelf visible without scrolling ─ */
+@media (min-width: 900px) {
+  /* Make the spotify embed shorter on typical desktop screens so the
+     bookshelf image can remain large but still fit below the embed. */
+  .spotify-embed__frame {
+    max-height: 18vh; /* conservative height for the player */
+  }
+
+  /* Slightly reduce bookshelf vertical footprint to ensure both fit */
+  .bookshelf-image {
+    max-height: 78vh;
+  }
+
+  /* Reduce wrapper padding so vertical space is used efficiently */
+  .bookshelf-wrapper {
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+  }
+}
