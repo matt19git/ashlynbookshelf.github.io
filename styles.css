@@ -32,7 +32,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start; /* keep content at top instead of vertically centered */
+  padding-top: 1rem;
 }
 
 /* ─── Bookshelf Container ──────────────────────────────────────────── */
@@ -40,7 +41,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.75rem 1rem;
+  padding: 1rem 1rem; /* reduced vertical padding to save space */
   width: 100%;
 }
 
@@ -183,7 +184,7 @@ body {
   display: flex;
   justify-content: center;
   width: 100%;
-  margin: 0.4rem 0 0.2rem 0; /* slightly less gap above and below */
+  margin: 0.2rem 0 0.1rem 0; /* tighter spacing above/below */
 }
 
 .spotify-embed__frame {
